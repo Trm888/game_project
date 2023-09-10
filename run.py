@@ -12,7 +12,9 @@ from fire import fire
 def load_frame_from_file(filename):
     with open(filename, 'r') as fd:
         return fd.read()
-
+async def sleep(tic_timeout=1):
+    for _ in range(tic_timeout):
+        await asyncio.sleep(0)
 
 async def animate_spaceship(canvas, row, column, frames):
     frame_cycle = itertools.cycle(frames)
@@ -39,23 +41,20 @@ async def animate_spaceship(canvas, row, column, frames):
         draw_frame(canvas, row, column, frame, negative=True)
 
 
-async def blink(canvas, row, column, symbol='*'):
+async def blink(canvas, row, column, offset_tics=1, symbol='*'):
+    await sleep(offset_tics)
     while True:
         canvas.addstr(row, column, symbol, curses.A_DIM)
-        for _ in range(random.randint(0, 20)):
-            await asyncio.sleep(0)
+        await sleep(20)
 
         canvas.addstr(row, column, symbol)
-        for _ in range(random.randint(0, 20)):
-            await asyncio.sleep(0)
+        await sleep(3)
 
         canvas.addstr(row, column, symbol, curses.A_BOLD)
-        for _ in range(random.randint(0, 20)):
-            await asyncio.sleep(0)
+        await sleep(5)
 
         canvas.addstr(row, column, symbol)
-        for _ in range(random.randint(0, 20)):
-            await asyncio.sleep(0)
+        await sleep(3)
 
 
 def draw(canvas):
@@ -66,7 +65,6 @@ def draw(canvas):
     rocket_frame_1 = load_frame_from_file('rocket_frame_1.txt')
     rocket_frame_2 = load_frame_from_file('rocket_frame_2.txt')
     rocket_frames = [rocket_frame_1, rocket_frame_2]
-
     curses.curs_set(False)
     canvas.border(0, 0, 0, 0, 0, 0, 0, 0)
     coroutines = []
@@ -80,7 +78,7 @@ def draw(canvas):
         coroutine_fire = fire(canvas, shot_row, shot_col)
         coroutines_fire.append(coroutine_fire)
     for _ in range(50):
-        coroutine = blink(canvas, random.randint(1, curses.LINES - 2), random.randint(1, curses.COLS - 2),
+        coroutine = blink(canvas, random.randint(1, curses.LINES - 2), random.randint(1, curses.COLS - 2), random.randint(0, 20),
                           random.choice(SYMBOLS_STAR))
         coroutines.append(coroutine)
     while True:
