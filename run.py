@@ -61,7 +61,7 @@ def draw(canvas):
     SYMBOLS_STAR = '+*.:'
     rocket_frame_1 = load_frame_from_file('rocket_frame_1.txt')
     rocket_frame_2 = load_frame_from_file('rocket_frame_2.txt')
-    rocket_frames = [rocket_frame_1, rocket_frame_2]
+    rocket_frames = [rocket_frame_1, rocket_frame_1, rocket_frame_2, rocket_frame_2]
     curses.curs_set(False)
     canvas.border(0, 0, 0, 0, 0, 0, 0, 0)
     coroutines = []
