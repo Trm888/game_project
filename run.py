@@ -34,7 +34,6 @@ async def animate_spaceship(canvas, row, column, frames):
         column += columns_direction
         frame = next(frame_cycle)
         draw_frame(canvas, row, column, frame)
-        canvas.refresh()
         await asyncio.sleep(0)
         await asyncio.sleep(0)
         await asyncio.sleep(0)
