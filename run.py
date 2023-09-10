@@ -5,7 +5,7 @@ import random
 import itertools
 import time
 
-from curses_tools import draw_frame, read_controls
+from curses_tools import draw_frame, read_controls, get_frame_size
 from fire import fire
 
 
@@ -16,22 +16,16 @@ async def sleep(tic_timeout=1):
     for _ in range(tic_timeout):
         await asyncio.sleep(0)
 
-async def animate_spaceship(canvas, row, column, frames):
+async def animate_spaceship(canvas, row, column, spaceship_row, spaceship_column, frames):
     frame_cycle = itertools.cycle(frames)
     while True:
         rows_direction, columns_direction, space_pressed = read_controls(canvas)
         if space_pressed:
             pass
-        if row + rows_direction < 1:
-            row = 2
-        if row + rows_direction >= curses.LINES - 9:
-            row = curses.LINES - 11
-        if column + columns_direction <= 0:
-            column = 2
-        if column + columns_direction >= curses.COLS - 5:
-            column = curses.COLS - 7
-        row += rows_direction
-        column += columns_direction
+        if 0 < row + rows_direction < curses.LINES - spaceship_row:
+            row += rows_direction
+        if 0 < column + columns_direction < curses.COLS - spaceship_column:
+            column += columns_direction
         frame = next(frame_cycle)
         draw_frame(canvas, row, column, frame)
         await asyncio.sleep(0)
@@ -61,16 +55,25 @@ def draw(canvas):
     SYMBOLS_STAR = '+*.:'
     rocket_frame_1 = load_frame_from_file('rocket_frame_1.txt')
     rocket_frame_2 = load_frame_from_file('rocket_frame_2.txt')
+    spaceship_row, spaceship_column = get_frame_size(rocket_frame_1)
+
     rocket_frames = [rocket_frame_1, rocket_frame_1, rocket_frame_2, rocket_frame_2]
     curses.curs_set(False)
     canvas.border(0, 0, 0, 0, 0, 0, 0, 0)
     coroutines = []
 
-    coroutine_spaceship = animate_spaceship(canvas, curses.LINES // 2, curses.COLS // 2 - 2, rocket_frames)
+    coroutine_spaceship = animate_spaceship(
+        canvas,
+        curses.LINES // 2 - spaceship_row // 2,
+        curses.COLS // 2 - 2,
+        spaceship_row,
+        spaceship_column,
+        rocket_frames
+    )
     coroutines.append(coroutine_spaceship)
 
     for _ in range(curses.LINES - 1 - curses.LINES // 2):
-        shot_row, shot_col = curses.LINES // 2, curses.COLS // 2
+        shot_row, shot_col = (curses.LINES - spaceship_row) // 2, curses.COLS // 2
         coroutine_fire = fire(canvas, shot_row, shot_col)
         coroutines.append(coroutine_fire)
     for _ in range(50):
