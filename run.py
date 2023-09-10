@@ -68,7 +68,6 @@ def draw(canvas):
     curses.curs_set(False)
     canvas.border(0, 0, 0, 0, 0, 0, 0, 0)
     coroutines = []
-    coroutines_fire = []
 
     coroutine_spaceship = animate_spaceship(canvas, curses.LINES // 2, curses.COLS // 2 - 2, rocket_frames)
     coroutines.append(coroutine_spaceship)
@@ -76,24 +75,20 @@ def draw(canvas):
     for _ in range(curses.LINES - 1 - curses.LINES // 2):
         shot_row, shot_col = curses.LINES // 2, curses.COLS // 2
         coroutine_fire = fire(canvas, shot_row, shot_col)
-        coroutines_fire.append(coroutine_fire)
+        coroutines.append(coroutine_fire)
     for _ in range(50):
         coroutine = blink(canvas, random.randint(1, curses.LINES - 2), random.randint(1, curses.COLS - 2), random.randint(0, 20),
                           random.choice(SYMBOLS_STAR))
         coroutines.append(coroutine)
+
     while True:
         for coroutine in coroutines:
-            coroutine.send(None)
+            try:
+                coroutine.send(None)
+            except StopIteration:
+                coroutines.remove(coroutine)
         canvas.refresh()
         time.sleep(TIC_TIMEOUT)
-
-        for coroutine_fire in coroutines_fire:
-            try:
-                coroutine_fire.send(None)
-            except StopIteration:
-                coroutines_fire.remove(coroutine_fire)
-            if len(coroutines_fire) == 0:
-                break
 
 
 if __name__ == '__main__':
