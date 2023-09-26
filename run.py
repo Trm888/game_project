@@ -12,9 +12,12 @@ from fire import fire
 def load_frame_from_file(filename):
     with open(filename, 'r') as fd:
         return fd.read()
+
+
 async def sleep(tic_timeout=1):
     for _ in range(tic_timeout):
         await asyncio.sleep(0)
+
 
 async def animate_spaceship(canvas, row, column, spaceship_row, spaceship_column, frames):
     frame_cycle = itertools.cycle(frames)
@@ -77,7 +80,8 @@ def draw(canvas):
         coroutine_fire = fire(canvas, shot_row, shot_col)
         coroutines.append(coroutine_fire)
     for _ in range(50):
-        coroutine = blink(canvas, random.randint(1, curses.LINES - 2), random.randint(1, curses.COLS - 2), random.randint(0, 20),
+        coroutine = blink(canvas, random.randint(1, curses.LINES - 2), random.randint(1, curses.COLS - 2),
+                          random.randint(0, 20),
                           random.choice(SYMBOLS_STAR))
         coroutines.append(coroutine)
 
