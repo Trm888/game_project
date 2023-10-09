@@ -8,9 +8,9 @@ import time
 
 from curses_tools import draw_frame, read_controls, get_frame_size
 from explosion import explode
+from game_scenario import PHRASES, get_garbage_delay_tics
 from obstacles import Obstacle
 from physics import update_speed
-from game_scenario import PHRASES, get_garbage_delay_tics
 
 coroutines = []
 obstacles = []
@@ -113,7 +113,6 @@ async def show_phrase(canvas, row, column):
         await sleep(1)
 
 
-
 async def show_year(canvas):
     global year
     while True:
@@ -190,7 +189,6 @@ def draw(canvas):
     coroutines.append(fill_orbit_with_garbage(canvas, garbage_frames))
     coroutines.append(show_year(canvas))
     coroutines.append(show_phrase(canvas, 2, 1))
-
 
     for _ in range(50):
         coroutine = blink(canvas,
