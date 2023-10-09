@@ -1,5 +1,6 @@
 import asyncio
 import curses
+import os
 import random
 
 import itertools
@@ -7,8 +8,9 @@ import time
 
 from curses_tools import draw_frame, read_controls, get_frame_size
 from fire import fire
+from space_garbage import fly_garbage
 
-
+coroutines = []
 def load_frame_from_file(filename):
     with open(filename, 'r') as fd:
         return fd.read()
@@ -17,6 +19,25 @@ def load_frame_from_file(filename):
 async def sleep(tic_timeout=1):
     for _ in range(tic_timeout):
         await asyncio.sleep(0)
+
+
+async def fill_orbit_with_garbage(canvas, garbage_frames, tic_timeout=10):
+
+
+    while True:
+        column = random.randint(1, curses.COLS - 2)
+        frame = random.choice(garbage_frames)
+        garbage_row, garbage_column = get_frame_size(frame)
+
+        if column + garbage_column > curses.COLS - 2:
+            column = curses.COLS - garbage_column - 2
+
+
+        coroutines.append(fly_garbage(canvas, column=column, garbage_frame=frame))
+
+        await sleep(tic_timeout)
+
+
 
 
 async def animate_spaceship(canvas, row, column, spaceship_row, spaceship_column, frames):
@@ -60,10 +81,16 @@ def draw(canvas):
     rocket_frame_2 = load_frame_from_file('rocket_frame_2.txt')
     spaceship_row, spaceship_column = get_frame_size(rocket_frame_1)
 
+
+    garbage_frames = []
+    for garbage in os.listdir('garbage'):
+        garbage_frames.append(load_frame_from_file(os.path.join('garbage', garbage)))
+
     rocket_frames = [rocket_frame_1, rocket_frame_1, rocket_frame_2, rocket_frame_2]
     curses.curs_set(False)
     canvas.border(0, 0, 0, 0, 0, 0, 0, 0)
-    coroutines = []
+
+    # coroutine_garbage = fly_garbage(canvas, column=10, garbage_frame=frame)
 
     coroutine_spaceship = animate_spaceship(
         canvas,
@@ -74,6 +101,8 @@ def draw(canvas):
         rocket_frames
     )
     coroutines.append(coroutine_spaceship)
+    coroutines.append(fill_orbit_with_garbage(canvas, garbage_frames))
+
 
     for _ in range(curses.LINES - 1 - curses.LINES // 2):
         shot_row, shot_col = (curses.LINES - spaceship_row) // 2, curses.COLS // 2
