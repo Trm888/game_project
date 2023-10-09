@@ -36,16 +36,16 @@ async def show_gameover(canvas):
     column = curses.COLS // 2 - columns // 2
     while True:
         draw_frame(canvas, row, column, gameover_frame)
-        await asyncio.sleep(0)
+        await sleep(1)
 
 
 async def fire(canvas, start_row, start_column, rows_speed=-0.3, columns_speed=0):
     """Display animation of gun shot, direction and speed can be specified."""
     row, column = start_row, start_column
     canvas.addstr(round(row), round(column), '*')
-    await asyncio.sleep(0)
+    await sleep(1)
     canvas.addstr(round(row), round(column), 'O')
-    await asyncio.sleep(0)
+    await sleep(1)
     canvas.addstr(round(row), round(column), ' ')
     row += rows_speed
     column += columns_speed
@@ -55,7 +55,7 @@ async def fire(canvas, start_row, start_column, rows_speed=-0.3, columns_speed=0
     curses.beep()
     while 0 < row < max_row and 0 < column < max_column:
         canvas.addstr(round(row), round(column), symbol)
-        await asyncio.sleep(0)
+        await sleep(1)
         canvas.addstr(round(row), round(column), ' ')
         row += rows_speed
         column += columns_speed
@@ -72,11 +72,11 @@ async def fly_garbage(canvas, column, garbage_frame, speed=0.5):
     rows_size, columns_size = get_frame_size(garbage_frame)
     while row < rows_number:
         draw_frame(canvas, row, column, garbage_frame)
-        await asyncio.sleep(0)
+        await sleep(1)
         obstacle = Obstacle(row, column, rows_size, columns_size)
         obstacles.append(obstacle)
         draw_frame(canvas, row, column, garbage_frame)
-        await asyncio.sleep(0)
+        await sleep(1)
         draw_frame(canvas, row, column, garbage_frame, negative=True)
         row += speed
         obstacles.remove(obstacle)
@@ -136,7 +136,7 @@ async def animate_spaceship(canvas, row, column, spaceship_row, spaceship_column
             column += column_speed
         frame = next(frame_cycle)
         draw_frame(canvas, row, column, frame)
-        await asyncio.sleep(0)
+        await sleep(1)
         draw_frame(canvas, row, column, frame, negative=True)
         row_speed, column_speed = update_speed(row_speed, column_speed, rows_direction, columns_direction)
         for obstacle in obstacles:
