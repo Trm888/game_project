@@ -10,10 +10,12 @@ from curses_tools import draw_frame, read_controls, get_frame_size
 from explosion import explode
 from obstacles import Obstacle
 from physics import update_speed
+from game_scenario import PHRASES, get_garbage_delay_tics
 
 coroutines = []
 obstacles = []
 obstacles_in_last_collisions = []
+year = 1957
 
 
 def load_frame_from_file(filename):
@@ -96,7 +98,28 @@ async def fill_orbit_with_garbage(canvas, garbage_frames, tic_timeout=10):
         if proposed_end_column < 0:
             column = 0
         coroutines.append(fly_garbage(canvas, column=column, garbage_frame=frame))
-        await sleep(tic_timeout)
+        if year > 1961:
+            await sleep(get_garbage_delay_tics(year))
+        else:
+            await sleep(tic_timeout)
+
+
+async def show_phrase(canvas, row, column):
+    global year
+    while True:
+        phrase = PHRASES.get(year, '')
+        if phrase:
+            canvas.derwin(row, column).addstr(phrase)
+        await sleep(1)
+
+
+
+async def show_year(canvas):
+    global year
+    while True:
+        year += 1
+        canvas.addstr(1, 1, f'Year: {year}')
+        await sleep(5)
 
 
 async def animate_spaceship(canvas, row, column, spaceship_row, spaceship_column, frames):
@@ -104,7 +127,7 @@ async def animate_spaceship(canvas, row, column, spaceship_row, spaceship_column
     row_speed = column_speed = 0
     while True:
         rows_direction, columns_direction, space_pressed = read_controls(canvas)
-        if space_pressed:
+        if space_pressed and year > 2020:
             coroutines.append(fire(canvas, row, column + spaceship_column // 2))
         if 0 < row + rows_direction + row_speed < curses.LINES - spaceship_row:
             row += rows_direction
@@ -165,6 +188,9 @@ def draw(canvas):
     )
     coroutines.append(coroutine_spaceship)
     coroutines.append(fill_orbit_with_garbage(canvas, garbage_frames))
+    coroutines.append(show_year(canvas))
+    coroutines.append(show_phrase(canvas, 2, 1))
+
 
     for _ in range(50):
         coroutine = blink(canvas,
