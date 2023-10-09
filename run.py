@@ -9,6 +9,7 @@ import time
 from curses_tools import draw_frame, read_controls, get_frame_size
 from fire import fire
 from space_garbage import fly_garbage
+from physics import update_speed
 
 coroutines = []
 def load_frame_from_file(filename):
@@ -42,18 +43,24 @@ async def fill_orbit_with_garbage(canvas, garbage_frames, tic_timeout=10):
 
 async def animate_spaceship(canvas, row, column, spaceship_row, spaceship_column, frames):
     frame_cycle = itertools.cycle(frames)
+    row_speed = column_speed = 0
     while True:
         rows_direction, columns_direction, space_pressed = read_controls(canvas)
         if space_pressed:
             pass
-        if 0 < row + rows_direction < curses.LINES - spaceship_row:
+        if 0 < row + rows_direction + row_speed < curses.LINES - spaceship_row:
             row += rows_direction
-        if 0 < column + columns_direction < curses.COLS - spaceship_column:
+            row += row_speed
+        if 0 < column + columns_direction + column_speed < curses.COLS - spaceship_column:
             column += columns_direction
+            column += column_speed
         frame = next(frame_cycle)
         draw_frame(canvas, row, column, frame)
         await asyncio.sleep(0)
         draw_frame(canvas, row, column, frame, negative=True)
+        row_speed, column_speed = update_speed(row_speed, column_speed, rows_direction, columns_direction)
+
+
 
 
 async def blink(canvas, row, column, offset_tics=1, symbol='*'):
@@ -90,7 +97,6 @@ def draw(canvas):
     curses.curs_set(False)
     canvas.border(0, 0, 0, 0, 0, 0, 0, 0)
 
-    # coroutine_garbage = fly_garbage(canvas, column=10, garbage_frame=frame)
 
     coroutine_spaceship = animate_spaceship(
         canvas,
