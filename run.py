@@ -47,7 +47,9 @@ async def animate_spaceship(canvas, row, column, spaceship_row, spaceship_column
     while True:
         rows_direction, columns_direction, space_pressed = read_controls(canvas)
         if space_pressed:
-            pass
+            coroutines.append(fire(canvas, row, column + spaceship_column // 2))
+
+
         if 0 < row + rows_direction + row_speed < curses.LINES - spaceship_row:
             row += rows_direction
             row += row_speed
@@ -110,10 +112,10 @@ def draw(canvas):
     coroutines.append(fill_orbit_with_garbage(canvas, garbage_frames))
 
 
-    for _ in range(curses.LINES - 1 - curses.LINES // 2):
-        shot_row, shot_col = (curses.LINES - spaceship_row) // 2, curses.COLS // 2
-        coroutine_fire = fire(canvas, shot_row, shot_col)
-        coroutines.append(coroutine_fire)
+    # for _ in range(curses.LINES - 1 - curses.LINES // 2):
+    #     shot_row, shot_col = (curses.LINES - spaceship_row) // 2, curses.COLS // 2
+    #     coroutine_fire = fire(canvas, shot_row, shot_col)
+    #     coroutines.append(coroutine_fire)
     for _ in range(50):
         coroutine = blink(canvas, random.randint(1, curses.LINES - 2), random.randint(1, curses.COLS - 2),
                           random.randint(0, 20),
