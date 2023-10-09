@@ -165,8 +165,8 @@ def draw(canvas):
     canvas.nodelay(True)
     TIC_TIMEOUT = 0.1
     SYMBOLS_STAR = '+*.:'
-    rocket_frame_1 = load_frame_from_file('rocket_frame_1.txt')
-    rocket_frame_2 = load_frame_from_file('rocket_frame_2.txt')
+    rocket_frame_1 = load_frame_from_file(os.path.join('rocketframe', 'rocket_frame_1.txt'))
+    rocket_frame_2 = load_frame_from_file(os.path.join('rocketframe', 'rocket_frame_2.txt'))
     spaceship_row, spaceship_column = get_frame_size(rocket_frame_1)
 
     garbage_frames = []
