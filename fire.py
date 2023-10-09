@@ -1,5 +1,5 @@
-import curses
 import asyncio
+import curses
 
 
 async def fire(canvas, start_row, start_column, rows_speed=-0.3, columns_speed=0):

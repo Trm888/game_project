@@ -5,6 +5,8 @@ async def fly_garbage(canvas, column, garbage_frame, speed=0.5):
     """Animate garbage, flying from top to bottom. Сolumn position will stay same, as specified on start."""
     rows_number, columns_number = canvas.getmaxyx()
 
+
+
     column = max(column, 0)
     column = min(column, columns_number - 1)
 
