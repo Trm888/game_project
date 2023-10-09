@@ -9,6 +9,7 @@ import time
 from curses_tools import draw_frame, read_controls, get_frame_size
 from obstacles import Obstacle
 from physics import update_speed
+from explosion import explode
 
 coroutines = []
 obstacles = []
@@ -51,7 +52,7 @@ async def fire(canvas, start_row, start_column, rows_speed=-0.3, columns_speed=0
                 return
 
 
-async def fly_garbage(canvas, column, garbage_frame, speed=1):
+async def fly_garbage(canvas, column, garbage_frame, speed=0.5):
     """Animate garbage, flying from top to bottom. Сolumn position will stay same, as specified on start."""
     rows_number, columns_number = canvas.getmaxyx()
     row = 0
@@ -68,6 +69,7 @@ async def fly_garbage(canvas, column, garbage_frame, speed=1):
         obstacles.remove(obstacle)
         if obstacle in obstacles_in_last_collisions:
             obstacles_in_last_collisions.remove(obstacle)
+            await explode(canvas, row + rows_size // 2, column + columns_size // 2)
             return
 
 
