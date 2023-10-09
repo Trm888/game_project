@@ -12,6 +12,7 @@ from physics import update_speed
 
 coroutines = []
 obstacles = []
+obstacles_in_last_collisions = []
 
 
 def load_frame_from_file(filename):
@@ -46,6 +47,7 @@ async def fire(canvas, start_row, start_column, rows_speed=-0.3, columns_speed=0
         column += columns_speed
         for obstacle in obstacles:
             if obstacle.has_collision(round(row), round(column)):
+                obstacles_in_last_collisions.append(obstacle)
                 return
 
 
@@ -64,6 +66,9 @@ async def fly_garbage(canvas, column, garbage_frame, speed=1):
         draw_frame(canvas, row, column, garbage_frame, negative=True)
         row += speed
         obstacles.remove(obstacle)
+        if obstacle in obstacles_in_last_collisions:
+            obstacles_in_last_collisions.remove(obstacle)
+            return
 
 
 async def fill_orbit_with_garbage(canvas, garbage_frames, tic_timeout=10):
@@ -81,7 +86,7 @@ async def fill_orbit_with_garbage(canvas, garbage_frames, tic_timeout=10):
         await sleep(tic_timeout)
 
 
-async def animate_spaceship(canvas, row, column, spaceship_row, spaceship_column, frames, obstacles):
+async def animate_spaceship(canvas, row, column, spaceship_row, spaceship_column, frames):
     frame_cycle = itertools.cycle(frames)
     row_speed = column_speed = 0
     while True:
@@ -139,8 +144,7 @@ def draw(canvas):
         curses.COLS // 2 - 2,
         spaceship_row,
         spaceship_column,
-        rocket_frames,
-        obstacles
+        rocket_frames
     )
     coroutines.append(coroutine_spaceship)
     coroutines.append(fill_orbit_with_garbage(canvas, garbage_frames))
