@@ -7,9 +7,9 @@ import itertools
 import time
 
 from curses_tools import draw_frame, read_controls, get_frame_size
+from explosion import explode
 from obstacles import Obstacle
 from physics import update_speed
-from explosion import explode
 
 coroutines = []
 obstacles = []
@@ -23,6 +23,17 @@ def load_frame_from_file(filename):
 
 async def sleep(tic_timeout=1):
     for _ in range(tic_timeout):
+        await asyncio.sleep(0)
+
+
+async def show_gameover(canvas):
+    with open(os.path.join('gameover', 'gameover.txt'), 'r') as fd:
+        gameover_frame = fd.read()
+    rows, columns = get_frame_size(gameover_frame)
+    row = curses.LINES // 2 - rows // 2
+    column = curses.COLS // 2 - columns // 2
+    while True:
+        draw_frame(canvas, row, column, gameover_frame)
         await asyncio.sleep(0)
 
 
@@ -106,6 +117,10 @@ async def animate_spaceship(canvas, row, column, spaceship_row, spaceship_column
         await asyncio.sleep(0)
         draw_frame(canvas, row, column, frame, negative=True)
         row_speed, column_speed = update_speed(row_speed, column_speed, rows_direction, columns_direction)
+        for obstacle in obstacles:
+            if obstacle.has_collision(row, column, spaceship_row, spaceship_column):
+                coroutines.append(show_gameover(canvas))
+                return
 
 
 async def blink(canvas, row, column, offset_tics=1, symbol='*'):
